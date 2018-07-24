@@ -12,8 +12,11 @@ from scipy.optimize import minimize
 from scipy.io import loadmat
 
 def sigmoid(z):
+''' Sigmoid function '''
     return 1/(1+np.exp(-z))
 
+
+''' Input '''
 data = loadmat('ex3weights.mat');
 Theta1 = np.array(data['Theta1'])
 Theta2 = np.array(data['Theta2'])
@@ -21,6 +24,9 @@ Theta2 = np.array(data['Theta2'])
 data = loadmat('ex3data1.mat')
 X = np.array(data['X']); y = np.array(data['y'])
 
+
+
+''' Feed forward propagation given optimal Theta1/2 '''
 A1 = X
 A1 = np.c_[np.ones(X.shape[0]), A1]
 Z2 = A1 @ Theta1.T

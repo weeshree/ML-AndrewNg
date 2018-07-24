@@ -11,9 +11,11 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
 def sigmoid(z):
+''' Sigmoid function '''
     return 1/(1+np.exp(-z));
 
 def costFunction(theta, X, y, lam):
+''' Computes cost of logistic regression '''
     m = len(X);
 #    print(m)
     theta = np.array(theta, ndmin=2);
@@ -23,6 +25,7 @@ def costFunction(theta, X, y, lam):
     return J;
 
 def getGradients(theta, X, y, lam):
+''' Returns gradient vector, d(costFunction)/d(theta) '''
     m = len(X);
     theta = np.array(theta, ndmin=2);
 #    print(theta)
@@ -36,24 +39,25 @@ def getGradients(theta, X, y, lam):
     return grad.ravel();
     
 def polyAdd(data):
+''' Inserts degree 0-7 terms to data '''
     x1 = data.iloc[:, 0].values; x2 = data.iloc[:, 1].values;
     data.insert(3, 'Ones', 1)
     for i in range(7):
         for j in range(7-i):
             data['col'+str(i)+str(j)] = np.power(x1, i) * np.power(x2, j)
-#            ar.append(np.power(x1, i) * np.power(x2, j))
     data.drop('Microchip Test 1', axis=1, inplace=True)
     data.drop('Microchip Test 2', axis=1, inplace=True)
     return data
 
-def gradientDescent(X, y, theta, lam, alpha, iterations):  
+def gradientDescent(X, y, theta, lam, alpha, iterations): 
+''' Performs gradient descent to minimize costFunction over theta '''
     cost = np.zeros(iterations)
     for i in range(iterations):
         theta = theta - alpha*getGradients(theta, X, y, lam);
         cost[i] = costFunction(theta, X, y, lam);    
     return theta, cost
   
-        
+''' Input '''
 data = pd.read_csv("ex2data2.txt", header=None, names=['Microchip Test 1', 'Microchip Test 2', 'Result'])
 #print(data.head())
 

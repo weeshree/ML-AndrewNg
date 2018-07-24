@@ -13,6 +13,7 @@ from scipy.optimize import minimize
 import scipy.optimize as opt
 
 def costFunction(theta, X, y, lam):
+''' computes cost of prediction, X @ theta.T, for linear regression '''
     theta = np.array(theta, ndmin=2)
     m = len(X)
     J = np.sum(np.power(X @ theta.T - y, 2)) / 2 / m;
@@ -20,6 +21,7 @@ def costFunction(theta, X, y, lam):
     return J
 
 def getGradients(theta, X, y, lam):
+''' returns gradient vector, d(costFunction)/d(theta) '''
     theta = np.array(theta, ndmin=2)
     m = len(X)
     grad = (X @ theta.T - y).T @ X / m
@@ -28,7 +30,7 @@ def getGradients(theta, X, y, lam):
     return grad.ravel()
 
 def learningCurveSize(theta, X, y, Xval, yval, lam):
-#    print(Xval.shape)
+''' Plots learning curve of error_train/error_validation vs. training set size '''
     m = len(X)
     errTrain = np.zeros(m); errVal = np.zeros(m); 
     for i in range(m):
@@ -45,7 +47,7 @@ def learningCurveSize(theta, X, y, Xval, yval, lam):
     ax.legend();
 
 def learningCurveLambda(thet, X, y, Xval, yval):
-#    print(Xval.shape)
+''' Plots learning curve of error_train/error_validation vs. lambda (regularization parameter) '''
     errTrain = np.zeros(10); errVal = np.zeros(10); 
     lam = 0; 
     ctr = 0;
@@ -66,9 +68,7 @@ def learningCurveLambda(thet, X, y, Xval, yval):
             lam *= 3;
         ctr+=1;
     fig, ax = plt.subplots(figsize = (12, 8))
-#    print(arr)
-#    print(errTrain)
-#    print(errVal)
+
     ax.plot(arr, errTrain, '-mx', label='Training')
     ax.plot(arr, errVal, '-co', label='XVal')
     ax.set_xlabel('Lambda')
@@ -77,57 +77,56 @@ def learningCurveLambda(thet, X, y, Xval, yval):
 
 
 def addPoly(X, p):
+''' Adds polynomial features up until degree (p-1) to 1d vector X'''
     m = len(X)
     ret = np.zeros([m, p])
     for i in range(p):
         ret[:, i] = np.power(X, i).ravel()
-#    print("HERE", ret.shape)
     return ret
 
 def norm(X):
+''' Normalizes polynomial features of vector X (not column 0) '''
     p = X.shape[1]
     means = np.zeros([p]);
     stds = np.zeros([p])
-#    print("SDLKSD",means.shape,p)
     for i in range(p):
         means[i] = np.mean(X[:, i])
         stds[i] = np.std(X[:, i])
         X[:, i] -= np.mean(X[:, i])
         X[:, i] /= np.std(X[:, i])
-#        print(i, "_____", np.mean(X[:, i]), np.sum(X[:, i]))
 
     return X, means, stds;
 
 def normOthers(X, p, means, stds):
+''' Given previous normalization conditions [means, stds], normalizes new vector X '''
     for i in range(1,p):
         X[:, i] -= means[i-1]
         X[:, i] /= stds[i-1]
     return X;
     
 def polyPlot(means, stds, p, X, y, Xval, yval, lam, X_n, Xval_n):
+''' Plots polynomial curves of X and Xval '''
     fig, ax = plt.subplots(figsize = (12, 8))
-#    print(X, y, "GIGLI")
     ax.plot(X, y, 'mx', label='Training')
     ax.plot(Xval, yval, 'kD', label='X Validation')
     ax.set_xlabel('reservoir H2O lev')
     ax.set_ylabel('dam H2O level')
      
     xr = np.linspace(np.min(X)-10, np.max(X)+10, 100)
-#    print(xr.shape)
     xrP = addPoly(xr, p)
-#    print(xrP.shape, means.shape)
     xrP = normOthers(xrP, p, means, stds)
     
-#    print(len(X), X.shape, y.shape)
     res = opt.fmin_tnc(func=costFunction, fprime = getGradients, x0=np.zeros(X_n.shape[1]), args=(X_n, y, lam))
     theta = np.array(res[0], ndmin=2);
-#    print(theta.shape, xrP.shape, "THET")
     f = xrP @ theta.T;
-#    print(xr, f)
+
     ax.plot(xr, f, 'c', label='Prediction')
     ax.legend();
     print("Lambda value: ",lam,"X Validation Error", costFunction(theta, Xval_n, yval, lam))
 
+    
+
+''' Input '''
 data = loadmat('ex5data1.mat')
 X = data['X']
 y = data['y']
@@ -137,6 +136,7 @@ yval = data['yval']
 lam = 3
 theta = np.zeros(X.shape[1])
 
+''' Plot of linear hypothesis '''
 #==============================================================================
 # fig, ax = plt.subplots(figsize = (12, 8))
 # ax.plot(X, y, 'mx')
@@ -160,9 +160,9 @@ theta = np.zeros(X.shape[1])
 # 
 #==============================================================================
 
- 
-p = 8
 
+''' Add poly features, normalize X_n and Xval_n '''
+p = 8
 
 X_n = addPoly(X, p)
 X_n[:, 1:], means, stds = norm(X_n[:, 1:])
@@ -170,14 +170,14 @@ X_n[:, 1:], means, stds = norm(X_n[:, 1:])
 Xval_n = addPoly(Xval, p)
 Xval_n = normOthers(Xval_n, p, means, stds)
 
-#print(means)
-#print(Xval_n)
+
+
+''' Compute theta vector using scipy.optimize and plot learning curves / polynomial curves '''
 theta = np.zeros(X_n.shape[1])
 
 res = opt.fmin_tnc(func=costFunction, fprime = getGradients, x0=theta, args=(X_n, y, lam))
 theta = res[0]
 
-#print(X_n.shape, Xval_n.shape, theta.shape)
 #learningCurveSize(theta, X_n, y, Xval_n, yval, lam)
 #learningCurveLambda(theta, X_n, y, Xval_n, yval)
 

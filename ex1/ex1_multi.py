@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def featureNormalize(X):
+''' Normalizes all columns besides first of X '''
     mu = np.mean(X[:,1:], axis=0);
     sd = np.std(X[:,1:], axis=0);
     X[:,1:] = X[:,1:] - mu;
@@ -17,18 +18,21 @@ def featureNormalize(X):
     return X;
 
 def costFunction(X, theta, y):
+''' Computes cost for prediction, hX = X @ theta.T '''
     m = len(X)
     J = np.sum(np.power((X @ theta.T - y), 2)) / 2 / m;
     return J;
 
 def gradientDescent(X, theta, y, alpha, iterations):
+''' Performs gradient descent to minimize costFunction over theta '''
     m = len(X)
     cost = np.zeros(iterations)
     for i in range(iterations):
         theta = theta - alpha/m * (X @ theta.T - y).T @ X
         cost[i] = costFunction(X, theta, y)
     return theta, cost
-    
+
+''' Input '''
 data = pd.read_csv("ex1data2.txt", header=None, names=['Size', 'Bedroom', 'Price'])
 #print(data.head())
 data.insert(0, 'Ones', 1)

@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 
 
 def computeCost(X, y, theta):
+''' Computes cost of prediction, hX = (X @ theta.T) '''
     m = len(X);
     J = np.sum(np.power(X @ theta.T - y, 2)) / 2 / m;
     return J;
 
 def gradientDescent(iterations, X, y, theta, alpha):
+''' Performs gradient descent to minimize costFunction over theta '''
     m = len(X);
     cost = np.zeros(iterations)
     for i in range(iterations):

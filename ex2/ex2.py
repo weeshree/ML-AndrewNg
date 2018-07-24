@@ -11,21 +11,25 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
 def sigmoid(z):
+''' Sigmoid function '''
     return 1/(1+np.exp(-z));
 
 def costFunction(theta, X, y):
+''' Computes cost of logistic regression '''
     theta = np.array(theta, ndmin=2);
     m = len(X);
     J = np.sum(-y*np.log(sigmoid(X @ theta.T)) - (1-y)*(np.log(1-sigmoid(X @ theta.T))))/m;
     return J;
     
 def getGradients(theta, X, y):
+''' Returns gradient vector, d(costFunction) / d(theta) '''
     theta = np.array(theta, ndmin=2);
     m = len(X);
     grad = (sigmoid(X @ theta.T) - y).T @ X / m;
     grad = np.array(grad);
     return grad.ravel();
-   
+
+''' Input '''
 data = pd.read_csv("ex2data1.txt", header=None, names = ['Exam 1', 'Exam 2', 'Admitted']);
 #print(data.head());
 #print(data.describe());

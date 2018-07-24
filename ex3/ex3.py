@@ -13,9 +13,11 @@ from scipy.io import loadmat
 from scipy.optimize import minimize
 
 def sigmoid(z):
+''' Sigmoid function '''
     return 1/(1+np.exp(-z))
     
 def costFunction(theta, X, y, lam):
+''' Computes cost of logistic regression '''
     m = len(X);
     theta = np.array(theta, ndmin = 2)    
     J_orig = np.sum(-1*y*np.log(sigmoid(X @ theta.T)) - (1-y)*np.log(1 - sigmoid(X @ theta.T)))/m
@@ -24,6 +26,7 @@ def costFunction(theta, X, y, lam):
     return J
 
 def getGradients(theta, X, y, lam):
+''' Returns gradient vector, d(costFunction)/d(theta) '''
     m = len(X);
     theta = np.array(theta, ndmin = 2)
     grad_orig = (sigmoid(X @ theta.T) - y).T @ X / m
@@ -32,6 +35,7 @@ def getGradients(theta, X, y, lam):
     return grad.ravel()
     
 def gradientDescent(X, y, theta, lam, alpha, iterations):  
+''' Performs gradient descent to minimize costFunction over theta (back-up scipy's minimize) '''
     cost = np.zeros(iterations)
     for i in range(iterations):
         theta = theta - alpha*getGradients(theta, X, y, lam);
@@ -40,6 +44,7 @@ def gradientDescent(X, y, theta, lam, alpha, iterations):
     
     
 def oneVsAll(X, y, lam, K):
+''' Performs one vs all (logistic regression for each class independently) w/ scipy's minimize '''
 #    alpha = 1; iterations = 1500;
     allTheta = np.zeros([K, X.shape[1]])
     for i in range(K):
@@ -51,10 +56,14 @@ def oneVsAll(X, y, lam, K):
 #    ax.plot(np.arange(iterations), cost, 'r');
     return allTheta
     
+    
+''' Input '''
 data = loadmat('ex3data1.mat')
 X = np.array(data['X']); y = np.array(data['y'])
 X = np.c_[np.ones([5000, 1]), X]
 lam = 1; K = 10;
+
+''' Classify & output '''
 allTheta = oneVsAll(X, y, lam, K)
 acc = np.mean(np.argmax(allTheta @ X.T, axis=0).T + 1 == y.T)
 print(acc)
